@@ -83,5 +83,45 @@ def evaluar_comparaciones_experimentos(X_train, X_test, y_train, y_test, preproc
     print("="*65 + "\n")
     return df_res
 
+def construir_pipeline(preprocesador):
+    """Pipeline completo: limpieza NLP (Keny) -> TF-IDF -> Regresión Logística."""
+    return Pipeline([
+        ('vectorizer', TfidfVectorizer(preprocessor=preprocesador.aplicar_lematizacion)),
+        ('classifier', LogisticRegression(random_state=42, max_iter=1000))
+    ])
+
+def optimizar_hiperparametros_pipeline(X_train, y_train, preprocesador):
+    """Ajusta hiperparámetros del Pipeline usando GridSearchCV con 5-Fold CV."""
+    print("⚙️ Ejecutando GridSearchCV para Regresión Logística...")
+
+    pipeline = construir_pipeline(preprocesador)
+
+    param_grid = {
+        'vectorizer__preprocessor': [preprocesador.aplicar_stemming, preprocesador.aplicar_lematizacion],
+        'vectorizer__ngram_range': [(1, 1), (1, 2)],
+        'vectorizer__min_df': [1, 2],
+        'vectorizer__max_df': [0.9, 1.0],
+        'classifier__C': [0.1, 1.0, 10.0],
+        'classifier__solver': ['lbfgs', 'liblinear']
+    }
+
+    grid_search = GridSearchCV(
+        estimator=pipeline,
+        param_grid=param_grid,
+        cv=5,
+        scoring='f1_weighted',
+        n_jobs=-1,
+        verbose=1
+    )
+
+    # Se pasa el texto crudo: el propio Pipeline aplica la limpieza de Keny
+    grid_search.fit(X_train, y_train)
+
+    mejores_params = dict(grid_search.best_params_)
+    mejores_params['vectorizer__preprocessor'] = mejores_params['vectorizer__preprocessor'].__name__
+    print(f"✅ Mejores Hiperparámetros: {mejores_params}")
+    print(f"✅ Mejor F1-Score en CV: {grid_search.best_score_:.4f}")
+    return grid_search.best_estimator_, mejores_params, grid_search.best_score_
+
 if __name__ == "__main__":
     print("🚀 Módulo de modelado e integración inicializado correctamente.")
