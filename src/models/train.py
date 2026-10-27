@@ -23,5 +23,18 @@ def cargar_datos(path_data: str):
     df = df.dropna(subset=['texto', 'sentimiento'])
     return df['texto'], df['sentimiento']
 
+def preparar_datasets(path_csv: str, test_size: float = 0.2, random_state: int = 42):
+    """Carga datos y realiza el train/test split estratificado."""
+    X, y = cargar_datos(path_csv)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y,
+        test_size=test_size,
+        random_state=random_state,
+        stratify=y
+    )
+    print(f"📊 Datos cargados: {len(X)} muestras totales.")
+    print(f"   - Entrenamiento: {len(X_train)} | Prueba: {len(X_test)}")
+    return X_train, X_test, y_train, y_test
+
 if __name__ == "__main__":
     print("🚀 Módulo de modelado e integración inicializado correctamente.")
