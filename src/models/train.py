@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import joblib
 import pandas as pd
 import numpy as np
@@ -14,6 +15,12 @@ from sklearn.metrics import classification_report, accuracy_score, f1_score, con
 # Importar el preprocesador del Integrante 1 (Keny)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from src.nlp.preprocess import NLPPreprocessor
+
+# Rutas absolutas: el script funciona sin importar desde qué carpeta se ejecute
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+RUTA_DATOS = os.path.join(BASE_DIR, 'data', 'resenas.csv')
+RUTA_MODELO = os.path.join(BASE_DIR, 'src', 'models', 'pipeline_modelo.pkl')
+RUTA_METRICAS = os.path.join(BASE_DIR, 'src', 'models', 'metricas.json')
 
 def cargar_datos(path_data: str):
     """Carga y limpia datos nulos iniciales del CSV de reseñas."""
@@ -123,5 +130,55 @@ def optimizar_hiperparametros_pipeline(X_train, y_train, preprocesador):
     print(f"✅ Mejor F1-Score en CV: {grid_search.best_score_:.4f}")
     return grid_search.best_estimator_, mejores_params, grid_search.best_score_
 
+def evaluar_y_exportar(modelo_optimo, mejores_params, mejor_score_cv, df_comparacion, X_test, y_test,
+                       ruta_modelo=RUTA_MODELO, ruta_metricas=RUTA_METRICAS):
+    """Evalúa en el conjunto de test retenido y exporta el .pkl y las métricas en JSON."""
+    y_pred = modelo_optimo.predict(X_test)
+
+    print("\n📈 REPORTE DE EVALUACIÓN EN TEST:")
+    print(classification_report(y_test, y_pred, target_names=['Negativo', 'Positivo']))
+
+    matriz = confusion_matrix(y_test, y_pred)
+    print("🧮 MATRIZ DE CONFUSIÓN:")
+    print(pd.DataFrame(matriz, index=['Real Negativo', 'Real Positivo'],
+                       columns=['Pred. Negativo', 'Pred. Positivo']))
+
+    os.makedirs(os.path.dirname(ruta_modelo), exist_ok=True)
+    joblib.dump(modelo_optimo, ruta_modelo)
+    print(f"\n💾 Modelo exportado exitosamente en: '{ruta_modelo}'")
+
+    metricas = {
+        "modelo": "Regresión Logística + TF-IDF",
+        "accuracy": round(accuracy_score(y_test, y_pred), 4),
+        "f1_weighted": round(f1_score(y_test, y_pred, average='weighted'), 4),
+        "f1_cv": round(mejor_score_cv, 4),
+        "mejores_hiperparametros": {k: str(v) for k, v in mejores_params.items()},
+        "matriz_confusion": matriz.tolist(),
+        "muestras_test": len(y_test),
+        "comparacion_experimentos": df_comparacion.to_dict(orient='records')
+    }
+    with open(ruta_metricas, 'w', encoding='utf-8') as f:
+        json.dump(metricas, f, ensure_ascii=False, indent=2)
+    print(f"💾 Métricas exportadas en: '{ruta_metricas}'")
+
+def main():
+    X_train, X_test, y_train, y_test = preparar_datasets(RUTA_DATOS)
+
+    preprocesador = NLPPreprocessor()
+
+    # 1. Comparación de experimentos
+    df_comparacion = evaluar_comparaciones_experimentos(X_train, X_test, y_train, y_test, preprocesador)
+
+    # 2. Búsqueda de hiperparámetros
+    modelo_final, mejores_params, mejor_score_cv = optimizar_hiperparametros_pipeline(X_train, y_train, preprocesador)
+
+    # 3. Evaluación final y exportación
+    evaluar_y_exportar(modelo_final, mejores_params, mejor_score_cv, df_comparacion, X_test, y_test)
+
+    # 4. Prueba rápida con texto crudo (así lo usará la API del Integrante 3)
+    ejemplo = "El hotel estaba sucio y NO lo recomiendo para nada"
+    prob = modelo_final.predict_proba([ejemplo])[0]
+    print(f"\n🔎 Prueba: '{ejemplo}' -> Negativo {prob[0]:.1%} | Positivo {prob[1]:.1%}")
+
 if __name__ == "__main__":
-    print("🚀 Módulo de modelado e integración inicializado correctamente.")
+    main()
