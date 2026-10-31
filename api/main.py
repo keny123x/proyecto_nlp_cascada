@@ -15,6 +15,7 @@ sys.path.append(BASE_DIR)
 from src.nlp.preprocess import NLPPreprocessor
 from api.config import RUTA_MODELO, RUTA_METRICAS, ORIGENES_PERMITIDOS
 from api.schemas import ResenaEntrada, PrediccionRespuesta, EstadoRespuesta, MetricasRespuesta
+from api.errores import registrar_manejadores
 
 ETIQUETAS = {0: 'Negativo', 1: 'Positivo'}
 
@@ -31,6 +32,9 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+
+# Errores en español y con el mismo formato: {"error": ..., "detalles": [...]}
+registrar_manejadores(app)
 
 preprocesador = NLPPreprocessor()
 HORA_INICIO = datetime.now()
