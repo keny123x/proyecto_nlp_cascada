@@ -14,13 +14,9 @@ from pydantic import BaseModel, Field, field_validator
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(BASE_DIR)
 from src.nlp.preprocess import NLPPreprocessor
-
-# Rutas por defecto a los archivos que exporta el Integrante 2 (Nicolás)
-RUTA_MODELO = os.getenv('RUTA_MODELO', os.path.join(BASE_DIR, 'src', 'models', 'pipeline_modelo.pkl'))
-RUTA_METRICAS = os.getenv('RUTA_METRICAS', os.path.join(BASE_DIR, 'src', 'models', 'metricas.json'))
+from api.config import RUTA_MODELO, RUTA_METRICAS, ORIGENES_PERMITIDOS, MAX_CARACTERES
 
 ETIQUETAS = {0: 'Negativo', 1: 'Positivo'}
-MAX_CARACTERES = 2000
 
 app = FastAPI(
     title="API de Sentimiento de Reseñas",
@@ -31,7 +27,7 @@ app = FastAPI(
 # Permite que el Frontend (Integrante 4) llame a la API desde el navegador
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ORIGENES_PERMITIDOS,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
