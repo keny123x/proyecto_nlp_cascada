@@ -4,6 +4,7 @@ import sys
 import json
 import unicodedata
 from datetime import datetime
+from typing import Optional
 
 import joblib
 from fastapi import FastAPI
@@ -15,9 +16,10 @@ sys.path.append(BASE_DIR)
 from src.nlp.preprocess import NLPPreprocessor
 from api.config import RUTA_MODELO, RUTA_METRICAS, ORIGENES_PERMITIDOS
 from api.schemas import (ResenaEntrada, PrediccionRespuesta, EstadoRespuesta, MetricasRespuesta,
-                         LoteEntrada, LoteRespuesta)
+                         LoteEntrada, LoteRespuesta, Ejemplo)
 from api.errores import registrar_manejadores
 from api.registro import logger, registrar_peticiones
+from api.ejemplos import EJEMPLOS
 
 ETIQUETAS = {0: 'Negativo', 1: 'Positivo'}
 
@@ -114,6 +116,14 @@ def metrics():
         metricas = json.load(f)
     metricas["modo"] = "real"
     return metricas
+
+
+@app.get("/ejemplos", response_model=list[Ejemplo])
+def ejemplos(categoria: Optional[str] = None):
+    """Reseñas de demostración. Se puede filtrar por categoría: hotel, restaurante o producto."""
+    if categoria:
+        return [e for e in EJEMPLOS if e["categoria"] == categoria.lower()]
+    return EJEMPLOS
 
 
 def clasificar(texto: str) -> dict:

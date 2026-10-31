@@ -91,3 +91,9 @@ class LoteRespuesta(BaseModel):
     positivos: int
     negativos: int
     resultados: list[PrediccionRespuesta]
+
+
+class Ejemplo(BaseModel):
+    categoria: str
+    sentimiento_esperado: str
+    texto: str
