@@ -16,6 +16,7 @@ from src.nlp.preprocess import NLPPreprocessor
 from api.config import RUTA_MODELO, RUTA_METRICAS, ORIGENES_PERMITIDOS
 from api.schemas import ResenaEntrada, PrediccionRespuesta, EstadoRespuesta, MetricasRespuesta
 from api.errores import registrar_manejadores
+from api.registro import logger, registrar_peticiones
 
 ETIQUETAS = {0: 'Negativo', 1: 'Positivo'}
 
@@ -36,6 +37,9 @@ app.add_middleware(
 # Errores en español y con el mismo formato: {"error": ..., "detalles": [...]}
 registrar_manejadores(app)
 
+# Cada petición queda anotada en el registro con su duración
+registrar_peticiones(app)
+
 preprocesador = NLPPreprocessor()
 HORA_INICIO = datetime.now()
 
@@ -43,10 +47,10 @@ HORA_INICIO = datetime.now()
 def cargar_modelo(ruta: str):
     """Carga el pipeline entrenado. Si todavía no existe, la API trabaja en modo simulado."""
     if not os.path.exists(ruta):
-        print(f"⚠️ No se encontró el modelo en '{ruta}'. La API responde en modo simulado.")
+        logger.warning(f"No se encontró el modelo en '{ruta}'. La API responde en modo simulado.")
         return None
     modelo = joblib.load(ruta)
-    print(f"✅ Modelo cargado desde '{ruta}'")
+    logger.info(f"Modelo cargado desde '{ruta}'")
     return modelo
 
 
@@ -127,6 +131,7 @@ def predict(resena: ResenaEntrada):
 
     sentimiento = max(probabilidades, key=probabilidades.get)
     probabilidad = probabilidades[sentimiento]
+    logger.info(f"Predicción: {sentimiento} {probabilidad:.1%} | \"{resena.texto[:60]}\"")
 
     return {
         "sentimiento": sentimiento,

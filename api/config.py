@@ -12,3 +12,6 @@ ORIGENES_PERMITIDOS = [o.strip() for o in os.getenv('ORIGENES_PERMITIDOS', '*').
 
 # Límites de las reseñas
 MAX_CARACTERES = int(os.getenv('MAX_CARACTERES', '2000'))
+
+# Archivo donde guardar el registro de peticiones (vacío = solo consola)
+LOG_ARCHIVO = os.getenv('LOG_ARCHIVO', '')
