@@ -8,13 +8,13 @@ from datetime import datetime
 import joblib
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, field_validator
 
 # El .pkl guarda referencias a NLPPreprocessor (Keny), así que src/ debe ser importable
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(BASE_DIR)
 from src.nlp.preprocess import NLPPreprocessor
-from api.config import RUTA_MODELO, RUTA_METRICAS, ORIGENES_PERMITIDOS, MAX_CARACTERES
+from api.config import RUTA_MODELO, RUTA_METRICAS, ORIGENES_PERMITIDOS
+from api.schemas import ResenaEntrada, PrediccionRespuesta, EstadoRespuesta, MetricasRespuesta
 
 ETIQUETAS = {0: 'Negativo', 1: 'Positivo'}
 
@@ -49,20 +49,6 @@ def cargar_modelo(ruta: str):
 modelo = cargar_modelo(RUTA_MODELO)
 
 
-class ResenaEntrada(BaseModel):
-    texto: str = Field(..., max_length=MAX_CARACTERES, examples=["El hotel estaba sucio y NO lo recomiendo para nada"])
-
-    @field_validator('texto')
-    @classmethod
-    def validar_texto(cls, valor: str) -> str:
-        valor = valor.strip()
-        if not valor:
-            raise ValueError("La reseña no puede estar vacía.")
-        if not re.search(r'[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]', valor):
-            raise ValueError("La reseña debe contener al menos una palabra.")
-        return valor
-
-
 def pasos_nlp(texto: str) -> dict:
     """Reproduce paso a paso la limpieza de Keny para que el Frontend la muestre en pantalla."""
     # Paso 1: minúsculas, sin URLs, sin tildes, sin signos ni números
@@ -94,7 +80,7 @@ def pasos_nlp(texto: str) -> dict:
     }
 
 
-@app.get("/status")
+@app.get("/status", response_model=EstadoRespuesta)
 def status():
     """Indica si el servidor está vivo y si el modelo real está cargado."""
     return {
@@ -105,7 +91,7 @@ def status():
     }
 
 
-@app.get("/metrics")
+@app.get("/metrics", response_model=MetricasRespuesta)
 def metrics():
     """Devuelve la precisión del modelo calculada por el Integrante 2 en el conjunto de prueba."""
     if not os.path.exists(RUTA_METRICAS):
@@ -121,7 +107,7 @@ def metrics():
     return metricas
 
 
-@app.post("/predict")
+@app.post("/predict", response_model=PrediccionRespuesta)
 def predict(resena: ResenaEntrada):
     """Recibe la reseña, calcula la probabilidad de cada clase y devuelve el veredicto."""
     pasos = pasos_nlp(resena.texto)
