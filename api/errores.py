@@ -9,6 +9,9 @@ MENSAJES = {
     'missing': "Este campo es obligatorio.",
     'string_type': "El valor debe ser un texto.",
     'string_too_long': f"La reseña no puede superar los {MAX_CARACTERES} caracteres.",
+    'too_short': "La lista debe tener al menos una reseña.",
+    'too_long': "La lista tiene demasiadas reseñas.",
+    'list_type': "Se esperaba una lista de textos.",
     'json_invalid': "El cuerpo de la petición no es un JSON válido.",
     'model_attributes_type': "Se esperaba un objeto JSON, por ejemplo {\"texto\": \"...\"}.",
 }

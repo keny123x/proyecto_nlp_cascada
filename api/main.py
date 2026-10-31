@@ -14,7 +14,8 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(BASE_DIR)
 from src.nlp.preprocess import NLPPreprocessor
 from api.config import RUTA_MODELO, RUTA_METRICAS, ORIGENES_PERMITIDOS
-from api.schemas import ResenaEntrada, PrediccionRespuesta, EstadoRespuesta, MetricasRespuesta
+from api.schemas import (ResenaEntrada, PrediccionRespuesta, EstadoRespuesta, MetricasRespuesta,
+                         LoteEntrada, LoteRespuesta)
 from api.errores import registrar_manejadores
 from api.registro import logger, registrar_peticiones
 
@@ -115,23 +116,22 @@ def metrics():
     return metricas
 
 
-@app.post("/predict", response_model=PrediccionRespuesta)
-def predict(resena: ResenaEntrada):
-    """Recibe la reseña, calcula la probabilidad de cada clase y devuelve el veredicto."""
-    pasos = pasos_nlp(resena.texto)
+def clasificar(texto: str) -> dict:
+    """Calcula el sentimiento de una reseña y arma la respuesta con el paso a paso del NLP."""
+    pasos = pasos_nlp(texto)
 
     if modelo is None:
         # Respuesta fija mientras no exista pipeline_modelo.pkl
         probabilidades = {"Negativo": 0.10, "Positivo": 0.90}
     else:
         # El pipeline recibe el texto crudo: él mismo aplica la limpieza y el TF-IDF
-        proba = modelo.predict_proba([resena.texto])[0]
+        proba = modelo.predict_proba([texto])[0]
         clases = modelo.classes_
         probabilidades = {ETIQUETAS[int(c)]: round(float(p), 4) for c, p in zip(clases, proba)}
 
     sentimiento = max(probabilidades, key=probabilidades.get)
     probabilidad = probabilidades[sentimiento]
-    logger.info(f"Predicción: {sentimiento} {probabilidad:.1%} | \"{resena.texto[:60]}\"")
+    logger.info(f"Predicción: {sentimiento} {probabilidad:.1%} | \"{texto[:60]}\"")
 
     return {
         "sentimiento": sentimiento,
@@ -140,4 +140,23 @@ def predict(resena: ResenaEntrada):
         "probabilidades": probabilidades,
         "modo": "real" if modelo is not None else "simulado",
         "pasos": {**pasos, "paso5_resultado": f"{sentimiento} - {probabilidad * 100:.1f}% de probabilidad"},
+    }
+
+
+@app.post("/predict", response_model=PrediccionRespuesta)
+def predict(resena: ResenaEntrada):
+    """Recibe la reseña, calcula la probabilidad de cada clase y devuelve el veredicto."""
+    return clasificar(resena.texto)
+
+
+@app.post("/predict/lote", response_model=LoteRespuesta)
+def predict_lote(lote: LoteEntrada):
+    """Clasifica varias reseñas en una sola petición y resume cuántas son positivas y negativas."""
+    resultados = [clasificar(texto) for texto in lote.textos]
+    positivos = sum(1 for r in resultados if r["sentimiento"] == "Positivo")
+    return {
+        "total": len(resultados),
+        "positivos": positivos,
+        "negativos": len(resultados) - positivos,
+        "resultados": resultados,
     }
