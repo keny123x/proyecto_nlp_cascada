@@ -64,10 +64,15 @@ def pasos_nlp(texto: str) -> dict:
     """Reproduce paso a paso la limpieza de Keny para que el Frontend la muestre en pantalla."""
     # Paso 1: minúsculas, sin URLs, sin tildes, sin signos ni números
     normalizado = texto.lower()
+    etapas_normalizacion = [{"nombre": "Minúsculas", "texto": normalizado}]
     normalizado = re.sub(r'https?://\S+|www\.\S+', '', normalizado)
+    etapas_normalizacion.append({"nombre": "Retirar URLs", "texto": normalizado})
     normalizado = "".join(c for c in unicodedata.normalize('NFD', normalizado) if unicodedata.category(c) != 'Mn')
+    etapas_normalizacion.append({"nombre": "Quitar tildes", "texto": normalizado})
     normalizado = re.sub(r'[^a-z\s]', '', normalizado)
+    etapas_normalizacion.append({"nombre": "Retirar signos, números y emojis", "texto": normalizado})
     normalizado = " ".join(normalizado.split())
+    etapas_normalizacion.append({"nombre": "Ordenar espacios", "texto": normalizado})
 
     # Paso 2: tokens
     tokens = normalizado.split()
@@ -83,6 +88,7 @@ def pasos_nlp(texto: str) -> dict:
     return {
         "texto_original": texto,
         "paso1_normalizado": normalizado,
+        "normalizacion_etapas": etapas_normalizacion,
         "paso2_tokens": tokens,
         "paso3_sin_stopwords": sin_stopwords,
         "paso3_stopwords_eliminadas": eliminadas,

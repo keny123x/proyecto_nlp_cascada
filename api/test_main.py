@@ -86,6 +86,19 @@ def test_predict_quita_tildes():
     assert pasos["paso1_normalizado"] == "pesimo servicio"
 
 
+def test_normalizacion_expone_transiciones_coherentes():
+    pasos = cliente.post("/predict", json={"texto": "¡HÓTEL NO! https://ejemplo.com 123 😊"}).json()["pasos"]
+    etapas = pasos["normalizacion_etapas"]
+    assert len(etapas) == 5
+    assert "hótel" in etapas[0]["texto"]
+    assert "https://" not in etapas[1]["texto"]
+    assert "hotel" in etapas[2]["texto"]
+    assert "123" not in etapas[3]["texto"]
+    assert "😊" not in etapas[3]["texto"]
+    assert etapas[-1]["texto"] == pasos["paso1_normalizado"] == "hotel no"
+    assert pasos["paso2_tokens"] == ["hotel", "no"]
+
+
 @requiere_modelo
 def test_predict_modelo_real_negativo():
     datos = cliente.post("/predict", json={"texto": "El hotel estaba sucio y NO lo recomiendo para nada"}).json()

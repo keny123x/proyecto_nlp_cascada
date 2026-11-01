@@ -48,7 +48,13 @@ class LoteEntrada(BaseModel):
         return limpios
 
 
+class EtapaNormalizacion(BaseModel):
+    nombre: str
+    texto: str
+
+
 class PasosNLP(BaseModel):
+    normalizacion_etapas: list[EtapaNormalizacion] = Field(default_factory=list)
     texto_original: str
     paso1_normalizado: str
     paso2_tokens: list[str]

@@ -156,3 +156,11 @@ Copia `api/.env.example` como `api/.env` para cambiar:
 | `ejemplos.py` | Reseñas de demostración |
 | `test_main.py` | Pruebas con pytest |
 | `run.sh` | Script para levantar el servidor |
+
+
+## Etapas intermedias para la animación
+
+`pasos.normalizacion_etapas` agrega una lista de objetos `{nombre, texto}` con
+los cinco estados de normalización. El último coincide con `paso1_normalizado`.
+El frontend utiliza estos textos para animar las diferencias, sin reimplementar
+la limpieza ni cambiar la predicción del pipeline. Los demás campos se conservan.
