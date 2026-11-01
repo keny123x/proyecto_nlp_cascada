@@ -2,6 +2,7 @@ import time
 import logging
 
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
 from api.config import LOG_ARCHIVO
 
@@ -34,7 +35,16 @@ def registrar_peticiones(app: FastAPI):
     @app.middleware("http")
     async def medir_peticion(request: Request, call_next):
         inicio = time.perf_counter()
-        respuesta = await call_next(request)
+        try:
+            respuesta = await call_next(request)
+        except Exception as e:
+            # Se responde aquí (dentro de CORS) para que el navegador reciba el error real
+            # y no un bloqueo CORS genérico.
+            logger.exception(f"Error no controlado en {request.method} {request.url.path}")
+            respuesta = JSONResponse(
+                status_code=500,
+                content={"error": "Error interno del servidor", "detalles": [{"campo": None, "mensaje": str(e)}]},
+            )
         ms = (time.perf_counter() - inicio) * 1000
         logger.info(f"{request.method} {request.url.path} -> {respuesta.status_code} ({ms:.1f} ms)")
         return respuesta
