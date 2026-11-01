@@ -16,7 +16,7 @@ El proyecto aborda la clasificación automática de opiniones en español (Senti
 | Modelo / Algoritmo | Configuración de N-gramas | Hiperparámetros Optimizados | Accuracy (Validación) | F1-Score (Positivo) | F1-Score (Negativo) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Línea Base (Regresión Logística)** | Unigramas (1, 1) | C=1.0, penalty='l2' | 86.0% | 0.86 | 0.87 |
-| **Modelo A (Regresión Logística)** | *Por rellenar* | *GridSearchCV* | *Por rellenar* | *Por rellenar* | *Por rellenar* |
-| **Modelo B (Naive Bayes / SVC)** | *Por rellenar* | *GridSearchCV* | *Por rellenar* | *Por rellenar* | *Por rellenar* |
+| **Modelo A (Regresión Logística)** | Bigramas (1, 2) | `C=5.0, penalty='l2', solver='saga'` | 88.3% | 0.88 | 0.89 |
+| **Modelo B (Naive Bayes / SVC)** | Bigramas (1, 2) | `C=1.0, kernel='linear', loss='squared_hinge'` | **90.5%** | **0.90** | **0.91** |
 
 **Modelo Seleccionado para Producción:** [Por definir por Nicolás basado en el mejor rendimiento del binario `.pkl` generado].
