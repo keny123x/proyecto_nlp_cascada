@@ -29,19 +29,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Permite que el Frontend (Integrante 4) llame a la API desde el navegador
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ORIGENES_PERMITIDOS,
-    allow_methods=["GET", "POST"],
-    allow_headers=["*"],
-)
-
 # Errores en español y con el mismo formato: {"error": ..., "detalles": [...]}
 registrar_manejadores(app)
 
 # Cada petición queda anotada en el registro con su duración
 registrar_peticiones(app)
+
+# Permite que el Frontend (Integrante 4) llame a la API desde el navegador.
+# Se agrega al final a propósito: así queda como la capa más externa y sus cabeceras
+# también viajan en las respuestas de error (si no, un 500 el navegador lo muestra como "CORS").
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ORIGENES_PERMITIDOS,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 preprocesador = NLPPreprocessor()
 HORA_INICIO = datetime.now()
@@ -80,6 +82,9 @@ def pasos_nlp(texto: str) -> dict:
     # Paso 4: stemming (la técnica que ganó en el GridSearchCV)
     raices = [preprocesador.stemmer.stem(w) for w in sin_stopwords]
 
+    # Lematización con el diccionario de lemas comunes de Keny (las demás palabras quedan igual)
+    lemas = [preprocesador.lemas_comunes.get(w, w) for w in sin_stopwords]
+
     return {
         "texto_original": texto,
         "paso1_normalizado": normalizado,
@@ -88,6 +93,7 @@ def pasos_nlp(texto: str) -> dict:
         "paso3_stopwords_eliminadas": eliminadas,
         "paso3_negaciones_conservadas": negaciones,
         "paso4_stemming": raices,
+        "paso4_lemas": lemas,
     }
 
 
@@ -144,6 +150,15 @@ def clasificar(texto: str) -> dict:
     logger.info(f"Predicción: {sentimiento} {probabilidad:.1%} | \"{texto[:60]}\"")
 
     return {
+        # Campos planos pensados para el Frontend (Angela): todo el proceso en un solo nivel
+        "sentimiento_predicho": sentimiento,
+        "confianza": probabilidad,
+        "normalizado": pasos["paso1_normalizado"],
+        "tokens": pasos["paso2_tokens"],
+        "sin_stopwords": pasos["paso3_sin_stopwords"],
+        "lemas": pasos["paso4_lemas"],
+        "raices": pasos["paso4_stemming"],
+        # Campos originales (se mantienen para no romper lo que ya consume el Frontend)
         "sentimiento": sentimiento,
         "probabilidad": probabilidad,
         "porcentaje": f"{probabilidad * 100:.1f}%",

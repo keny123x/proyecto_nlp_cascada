@@ -55,6 +55,13 @@ La documentación interactiva queda en **http://127.0.0.1:8000/docs**.
 **Respuesta** (con el modelo real)
 ```json
 {
+  "sentimiento_predicho": "Negativo",
+  "confianza": 0.9866,
+  "normalizado": "el hotel estaba sucio y no lo recomiendo para nada",
+  "tokens": ["el", "hotel", "estaba", "sucio", "y", "no", "lo", "recomiendo", "para", "nada"],
+  "sin_stopwords": ["hotel", "sucio", "no", "recomiendo", "nada"],
+  "lemas": ["hotel", "sucio", "no", "recomiendo", "nada"],
+  "raices": ["hotel", "suci", "no", "recom", "nad"],
   "sentimiento": "Negativo",
   "probabilidad": 0.9866,
   "porcentaje": "98.7%",
@@ -68,10 +75,13 @@ La documentación interactiva queda en **http://127.0.0.1:8000/docs**.
     "paso3_stopwords_eliminadas": ["el", "estaba", "y", "lo", "para"],
     "paso3_negaciones_conservadas": ["no", "nada"],
     "paso4_stemming": ["hotel", "suci", "no", "recom", "nad"],
+    "paso4_lemas": ["hotel", "sucio", "no", "recomiendo", "nada"],
     "paso5_resultado": "Negativo - 98.7% de probabilidad"
   }
 }
 ```
+
+Los campos planos de arriba (`sentimiento_predicho`, `confianza`, `normalizado`, `tokens`, `sin_stopwords`, `lemas`, `raices`) son el resumen que debe pintar el Frontend; los campos originales (`sentimiento`, `probabilidad`, `pasos`...) se mantienen por compatibilidad. Los `lemas` salen del diccionario de lemas comunes de `NLPPreprocessor`; las palabras que no están ahí quedan igual.
 
 Los campos de `pasos` son exactamente los 5 pasos que pide el Requisito 5.2:
 
@@ -80,7 +90,7 @@ Los campos de `pasos` son exactamente los 5 pasos que pide el Requisito 5.2:
 | 1 | `paso1_normalizado` | Minúsculas, sin tildes, signos, números ni URLs |
 | 2 | `paso2_tokens` | El texto separado en palabras |
 | 3 | `paso3_sin_stopwords` | Sin conectores; `paso3_negaciones_conservadas` muestra que el "no" se mantiene |
-| 4 | `paso4_stemming` | Raíces de las palabras (la técnica que ganó en el GridSearchCV) |
+| 4 | `paso4_stemming` / `paso4_lemas` | Raíces de las palabras (la técnica que ganó en el GridSearchCV) y lemas |
 | 5 | `paso5_resultado` | Veredicto con su porcentaje |
 
 ### `POST /predict/lote`
@@ -140,7 +150,7 @@ Copia `api/.env.example` como `api/.env` para cambiar:
 | `PUERTO` | `8000` | Puerto del servidor (lo usa `run.sh`) |
 | `RUTA_MODELO` | `src/models/pipeline_modelo.pkl` | Modelo a cargar |
 | `RUTA_METRICAS` | `src/models/metricas.json` | Métricas a devolver |
-| `ORIGENES_PERMITIDOS` | `*` | Orígenes que acepta CORS, separados por coma |
+| `ORIGENES_PERMITIDOS` | `*` | Orígenes que acepta CORS, separados por coma. Si no se usa `*`, incluye el origen exacto del front (ej: `http://localhost:5173,http://127.0.0.1:5500`) |
 | `MAX_CARACTERES` | `2000` | Largo máximo de una reseña |
 | `LOG_ARCHIVO` | *(vacío)* | Archivo donde guardar el registro de peticiones |
 

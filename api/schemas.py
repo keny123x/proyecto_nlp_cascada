@@ -56,10 +56,20 @@ class PasosNLP(BaseModel):
     paso3_stopwords_eliminadas: list[str]
     paso3_negaciones_conservadas: list[str]
     paso4_stemming: list[str]
+    paso4_lemas: list[str]
     paso5_resultado: str
 
 
 class PrediccionRespuesta(BaseModel):
+    # Resumen plano del proceso completo (lo que muestra el Frontend paso a paso)
+    sentimiento_predicho: str = Field(..., examples=["Negativo"])
+    confianza: float = Field(..., ge=0, le=1, examples=[0.987])
+    normalizado: str = Field(..., examples=["el hotel estaba sucio y no lo recomiendo para nada"])
+    tokens: list[str]
+    sin_stopwords: list[str]
+    lemas: list[str]
+    raices: list[str]
+
     sentimiento: str = Field(..., examples=["Negativo"])
     probabilidad: float = Field(..., ge=0, le=1, examples=[0.987])
     porcentaje: str = Field(..., examples=["98.7%"])

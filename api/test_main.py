@@ -148,3 +148,49 @@ def test_ejemplos_lista_completa():
 def test_ejemplos_filtra_por_categoria():
     datos = cliente.get("/ejemplos", params={"categoria": "hotel"}).json()
     assert datos and all(e["categoria"] == "hotel" for e in datos)
+
+
+# ---------- Campos planos para el Frontend ----------
+
+def test_predict_devuelve_json_plano_para_el_frontend():
+    datos = cliente.post("/predict", json={"texto": "El hotel estaba sucio y NO lo recomiendo para nada"}).json()
+    assert datos["sentimiento_predicho"] == datos["sentimiento"]
+    assert datos["confianza"] == datos["probabilidad"]
+    assert datos["normalizado"] == "el hotel estaba sucio y no lo recomiendo para nada"
+    assert datos["tokens"][:2] == ["el", "hotel"]
+    assert "no" in datos["sin_stopwords"] and "el" not in datos["sin_stopwords"]
+    assert len(datos["lemas"]) == len(datos["sin_stopwords"])
+    assert len(datos["raices"]) == len(datos["sin_stopwords"])
+
+
+def test_lemas_usan_el_diccionario_de_lemas_comunes():
+    datos = cliente.post("/predict", json={"texto": "Servicio malisimo y pesima atención"}).json()
+    assert "malo" in datos["lemas"] and "pesimo" in datos["lemas"]
+
+
+# ---------- CORS ----------
+
+def test_cors_permite_preflight_del_frontend():
+    r = cliente.options("/predict", headers={
+        "Origin": "http://localhost:5173",
+        "Access-Control-Request-Method": "POST",
+        "Access-Control-Request-Headers": "content-type",
+    })
+    assert r.status_code == 200
+    assert r.headers["access-control-allow-origin"] in ("*", "http://localhost:5173")
+
+
+def test_cors_tambien_en_respuestas_de_error():
+    r = cliente.post("/predict", json={"texto": ""}, headers={"Origin": "http://localhost:5173"})
+    assert r.status_code == 422
+    assert "access-control-allow-origin" in r.headers
+
+
+def test_cors_en_error_interno(monkeypatch):
+    def falla(_texto):
+        raise RuntimeError("fallo simulado")
+    monkeypatch.setattr(main, "clasificar", falla)
+    r = TestClient(main.app, raise_server_exceptions=False).post(
+        "/predict", json={"texto": "hola"}, headers={"Origin": "http://localhost:5173"})
+    assert r.status_code == 500
+    assert "access-control-allow-origin" in r.headers
