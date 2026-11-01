@@ -1,0 +1,51 @@
+{
+  "modelo": "Regresión Logística + TF-IDF",
+  "accuracy": 0.935,
+  "f1_weighted": 0.935,
+  "f1_cv": 0.9262,
+  "mejores_hiperparametros": {
+    "classifier__C": "10.0",
+    "classifier__solver": "lbfgs",
+    "vectorizer__max_df": "0.9",
+    "vectorizer__min_df": "1",
+    "vectorizer__ngram_range": "(1, 1)",
+    "vectorizer__preprocessor": "aplicar_stemming"
+  },
+  "matriz_confusion": [
+    [
+      92,
+      8
+    ],
+    [
+      5,
+      95
+    ]
+  ],
+  "muestras_test": 200,
+  "comparacion_experimentos": [
+    {
+      "Modelo": "Regresión Logística (Unigramas)",
+      "Dim. Vocabulario": 3242,
+      "Accuracy": 0.925,
+      "F1-Score (Weighted)": 0.925
+    },
+    {
+      "Modelo": "Regresión Logística (Unigramas + Bigramas)",
+      "Dim. Vocabulario": 6247,
+      "Accuracy": 0.935,
+      "F1-Score (Weighted)": 0.935
+    },
+    {
+      "Modelo": "Naive Bayes (Unigramas)",
+      "Dim. Vocabulario": 3242,
+      "Accuracy": 0.93,
+      "F1-Score (Weighted)": 0.93
+    },
+    {
+      "Modelo": "Naive Bayes (Unigramas + Bigramas)",
+      "Dim. Vocabulario": 6247,
+      "Accuracy": 0.935,
+      "F1-Score (Weighted)": 0.935
+    }
+  ]
+}

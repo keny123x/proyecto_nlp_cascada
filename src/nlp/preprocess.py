@@ -4,7 +4,11 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 
-nltk.download('stopwords', quiet=True)
+# Evita consultar la red en cada arranque si el recurso ya está instalado.
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords', quiet=True, raise_on_error=True)
 
 class NLPPreprocessor:
     def __init__(self):

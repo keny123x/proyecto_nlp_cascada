@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explora lo que expresan las reseñas de hoteles y descubre el recorrido de sus palabras.">
+  <title>Opinómetro — Cada estancia cuenta una historia</title>
+  <link rel="stylesheet" href="./src/styles.css">
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+</head>
+<body>
+<noscript><p class="noscript">Activa JavaScript para conectar el analizador con la API y explorar los resultados.</p></noscript>
+<a class="skip" href="#analizar">Saltar al analizador</a>
+<header class="header"><a href="#inicio" class="brand"><span class="brand-icon">o<span></span></span>opinómetro</a><nav aria-label="Principal"><a href="#analizar">Analizar</a><a href="#laboratorio">El proceso</a><a href="#metricas">El modelo</a></nav><a class="header-cta" href="#analizar">Pruébalo <span>↗</span></a></header>
+<main>
+<section class="hero" id="inicio">
+  <div class="hero-copy"><p class="eyebrow"><span class="signal"></span> PALABRAS QUE DICEN MÁS · NLP EN ESPAÑOL</p><h1>Cada estancia<br>cuenta una<br><em>historia.</em><span class="asterisk">✳</span></h1><p class="intro">Una habitación increíble. Una atención que decepciona.<br>Descubre el sentimiento detrás de cada reseña<br class="desktop"> y sigue el viaje de sus palabras.</p><a class="button primary" href="#analizar">Descubrir una opinión <span>↗</span></a><span class="hero-note">Sin cuentas. Solo palabras y un poco de ciencia.</span></div>
+  <div class="hero-art" aria-label="Opiniones de huéspedes, una llave y una tarjeta de bienvenida sobre una estancia acogedora" role="img">
+    <div class="stay-key"><img src="./assets/stay-key.svg" alt="" width="90" height="44"><span>UNA LLAVE.<br>MIL HISTORIAS.</span></div>
+    <div class="stay-pass"><span class="pass-mark">✧</span><span>BIENVENIDO A TU<br><strong>próxima estancia.</strong></span><span class="pass-line"></span><span class="pass-room">EST. 001</span></div>
+    <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><span class="axis axis-x"></span><span class="axis axis-y"></span>
+    <span class="art-label label-top">CADA HUÉSPED TIENE UNA HISTORIA</span>
+    <div class="float-review review-top"><span class="tiny-stars">★★★★★</span><span>“Volvería sin pensarlo.”</span><i>↗</i></div>
+    <div class="bubble bubble-back"><div class="face unhappy"><span></span><span></span><i></i></div></div>
+    <div class="bubble bubble-front"><div class="face happy"><span></span><span></span><i></i></div><span class="bubble-glint"></span></div>
+    <span class="spark spark-one">✦</span><span class="spark spark-two">✧</span>
+    <div class="float-review review-bottom"><span class="review-dot"></span><span>“La limpieza podría mejorar.”</span></div>
+    <div class="coordinate">01 / OPINIONES EN MOVIMIENTO</div>
+  </div>
+  <div class="hero-footer"><span>DISEÑADO PARA EXPLORAR, NO SOLO PREDECIR</span><a href="#analizar">Desliza para descubrir <span>↓</span></a></div>
+</section>
+<div class="ticker" aria-hidden="true"><span>RESEÑAS REALES</span>✳<span>PALABRAS CON CONTEXTO</span>✳<span>SENTIMIENTO EN ESPAÑOL</span>✳<span>DEL TEXTO A LOS DATOS</span>✳</div>
+<section class="workspace section" id="analizar">
+  <div class="section-heading"><div><p class="eyebrow">01 / EL PUNTO DE PARTIDA</p><h2>¿Qué dice <em>tu reseña?</em></h2></div><p>Escribe una experiencia de hotel.<br>Nosotros seguimos el hilo.</p></div>
+  <div class="workspace-top"><div class="tabs" role="tablist" aria-label="Modo de análisis"><button class="tab active" id="single-tab" role="tab" aria-selected="true" aria-controls="single-panel">Una reseña</button><button class="tab" id="batch-tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="batch-panel">Varias reseñas <span>50 máx.</span></button></div><span class="prototype-label">COMPROBANDO CONEXIÓN CON LA API…</span></div>
+  <div class="analysis-grid">
+    <div class="input-card"><div id="single-panel" role="tabpanel" aria-labelledby="single-tab"><label for="review">Tu experiencia, en tus palabras</label><textarea spellcheck="true" lang="es" id="review" maxlength="2000" placeholder="La habitación era luminosa y el personal nos hizo sentir como en casa…"></textarea><div class="input-meta"><span>RESEÑAS DE HOTELES · ESPAÑOL</span><span id="counter">0 / 2000</span></div><div class="examples"><span>¿Sin ideas? Prueba una:</span><button data-example="positive">Una buena estancia ↗</button><button data-example="negative">Algo salió mal ↗</button><button data-example="mixed">Una experiencia mixta ↗</button></div></div>
+    <div id="batch-panel" role="tabpanel" aria-labelledby="batch-tab" hidden><label for="batch">Una experiencia por línea</label><textarea id="batch" placeholder="Excelente atención y habitaciones limpias.&#10;El ruido no nos dejó descansar."></textarea><p class="batch-help">Hasta 50 reseñas, una por línea y hasta 2000 caracteres cada una.</p></div>
+    <div class="input-actions"><button id="clear" class="text-button">Limpiar</button><button class="button primary" id="preview">Analizar reseña <span>↗</span></button></div><p id="form-message" class="form-message" role="status">Tu texto se envía al backend local para obtener la predicción.</p></div>
+    <aside class="result-card" aria-labelledby="result-title"><div class="card-top"><span>LA LECTURA DEL MODELO</span><span class="sample-badge">Sin analizar</span></div><div class="result-symbol" aria-hidden="true">↗</div><h3 id="result-title">Tu opinión empieza aquí.</h3><p class="result-description">Escribe una reseña y pulsa Analizar reseña para conocer el resultado.</p><div class="result-value"><span>Esperando una reseña</span><strong>—</strong></div><div class="probability-track"><span></span></div><div class="probability-legend"><span><i></i> Positivo —</span><span><i></i> Negativo —</span></div><p class="result-footnote">La probabilidad estima una clase; no mide la intensidad de la emoción.</p></aside>
+  </div>
+</section>
+<section class="lab section" id="laboratorio"><div class="section-heading"><div><p class="eyebrow">02 / DETRÁS DEL RESULTADO</p><h2>Un pequeño viaje.<br><em>Palabra por palabra.</em></h2></div><p>Abre cada etapa y descubre cómo<br>el texto se prepara para el modelo.</p></div><div class="lab-layout"><div class="step-list" role="tablist" aria-label="Etapas del procesamiento"><button role="tab" aria-selected="true" class="step active" data-step="0" aria-controls="step-content"><span>01</span><div>Normalizar<small>Dejar lo esencial</small></div><i>↗</i></button><button role="tab" aria-selected="false" class="step" data-step="1" aria-controls="step-content"><span>02</span><div>Tokenizar<small>Separar las palabras</small></div><i>↗</i></button><button role="tab" aria-selected="false" class="step" data-step="2" aria-controls="step-content"><span>03</span><div>Filtrar<small>Conservar lo que importa</small></div><i>↗</i></button><button role="tab" aria-selected="false" class="step" data-step="3" aria-controls="step-content"><span>04</span><div>Encontrar raíces<small>Reducir las variantes</small></div><i>↗</i></button></div><div class="step-panel" id="step-content" role="tabpanel" tabindex="0"><div class="card-top"><span id="step-label">01 / NORMALIZACIÓN</span><span>ESPERANDO RESEÑA</span></div><div id="step-body"></div><div class="lab-controls"><span>Sin análisis activo.</span><button id="next-step" aria-label="Siguiente etapa">→</button></div></div></div></section>
+<section class="metrics section" id="metricas"><div class="section-heading"><div><p class="eyebrow">03 / LA CIENCIA DETRÁS</p><h2>Menos magia.<br><em>Más evidencia.</em></h2></div><p>Regresión Logística + TF-IDF.<br>Entrenado con reseñas de hoteles en español.</p></div><div class="metric-grid"></div><p class="metrics-note" role="status">Consultando métricas de la API…</p></section>
+<section class="closing" id="cierre" aria-labelledby="closing-title">
+  <div class="closing-inner">
+    <div class="closing-copy"><p class="eyebrow">CADA HUÉSPED · UNA HISTORIA</p><h2 id="closing-title">Cada opinión abre<br><em>una nueva puerta.</em></h2><p class="closing-description">La habitación, la atención, ese detalle que recuerdas.<br>Tu experiencia tiene algo que decir. Descúbrelo.</p><a class="button primary" href="#analizar">Analizar mi experiencia <span>↗</span></a><div class="closing-signature"><img src="./assets/stay-key.svg" alt="" width="49" height="24"><span>DE UNA ESTANCIA A UNA OPINIÓN.<br>DE LAS PALABRAS A ENTENDER MEJOR.</span></div></div>
+    <div class="closing-illustration"><div class="door-halo"></div><img src="./assets/stay-door.svg" width="440" height="430" alt="Puerta de una estancia entreabierta con luz cálida, una planta y una maleta"><span class="closing-room-tag">BIENVENIDO<br><strong>Tu historia empieza aquí.</strong></span></div>
+  </div>
+</section>
+</main><footer><a class="brand" href="#inicio">opinómetro</a><span>PROYECTO INTEGRADOR · TÓPICOS Y PROGRAMACIÓN AVANZADA</span><a href="#inicio">Volver arriba ↑</a></footer>
+<script type="module" src="./src/main.js"></script>
+</body></html>
