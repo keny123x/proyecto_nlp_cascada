@@ -19,4 +19,5 @@ El proyecto aborda la clasificación automática de opiniones en español (Senti
 | **Modelo A (Regresión Logística)** | Bigramas (1, 2) | `C=5.0, penalty='l2', solver='saga'` | 88.3% | 0.88 | 0.89 |
 | **Modelo B (Naive Bayes / SVC)** | Bigramas (1, 2) | `C=1.0, kernel='linear', loss='squared_hinge'` | **90.5%** | **0.90** | **0.91** |
 
-**Modelo Seleccionado para Producción:** [Por definir por Nicolás basado en el mejor rendimiento del binario `.pkl` generado].
+**Modelo Seleccionado para Producción:**Modelo Seleccionado para Producción:** Se selecciona el **Modelo B (SVC)** debido a que obtuvo el mayor rendimiento cuantitativo general con un **90.5% de Accuracy** en validación y métricas F1-Score robustas y equilibradas para ambas clases. El archivo correspondiente ha sido exportado como el binario `.pkl` definitivo para producción.
+
