@@ -15,7 +15,30 @@ def reparar_codificacion(texto):
         except (UnicodeEncodeError, UnicodeDecodeError):
             break
     return texto
-
+  def limpiar_texto_nlp_avanzado(texto):
+    """
+    Módulo de preprocesamiento de NLP e Ingeniería de Características.
+    Normaliza el texto, elimina ruido numérico, caracteres especiales y espacios múltiples.
+    """
+    texto = reparar_codificacion(texto)
+    if not isinstance(texto, str):
+        return ""
+    
+    # 1. Pasar a minúsculas para unificar el vocabulario (evita duplicar "Hotel" y "hotel")
+    texto = texto.lower()
+    
+    # 2. Eliminar números que no aportan valor semántico al análisis de sentimiento
+    import re
+    texto = re.sub(r'\d+', '', texto)
+    
+    # 3. Remover caracteres especiales y puntuación residual, conservando letras, eñes y tildes
+    texto = re.sub(r'[^\w\sáéíóúñ]', '', texto)
+    
+    # 4. Limpiar espacios en blanco múltiples remanentes
+    texto = re.sub(r'\s+', ' ', texto).strip()
+    
+    return texto
+  
 print("🔄 Descargando reseñas REALES de hoteles en español (Rest-Mex 2025)...")
 
 try:
@@ -30,7 +53,8 @@ try:
     df['sentimiento'] = (df['Polarity'] >= 4).astype(int)
 
     # 3. Texto completo = título + reseña, sin vacíos ni duplicados
-    df['texto'] = df['Title'].map(reparar_codificacion) + '. ' + df['Review'].map(reparar_codificacion)
+    df['texto'] = df['Title'].map(limpiar_texto_nlp_avanzado) + '. ' + df['Review'].map(limpiar_texto_nlp_avanzado)
+
     df = df.drop_duplicates(subset='texto')
 
     # 4. Muestra balanceada y reproducible
